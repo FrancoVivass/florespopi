@@ -2,5 +2,6 @@ node_modules/
 dist/
 .angular/
 .sites-runtime/
+.vercel/
 *.tar.gz
 *.log
