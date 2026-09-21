@@ -1,0 +1,58 @@
+<main class="experience" [class.motion-paused]="paused()" [class.is-growing]="growing()" [class.is-complete]="complete()">
+  <div class="ambient" aria-hidden="true"></div>
+  <app-atmosphere [paused]="paused()" />
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Flores amarillas, inicio"><span class="brand-sun">✳</span><span>un gesto bonito</span></a>
+    <span class="top-note">HAY PERSONAS QUE SON PRIMAVERA.</span>
+    <div class="top-controls">
+      <button class="sound-button" [class.playing]="sound()" [attr.aria-pressed]="sound()" [disabled]="soundBusy()" (click)="toggleSound()" [attr.aria-label]="sound() ? 'Apagar música' : 'Activar música'"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{ sound() ? 'Música encendida' : 'Activar música' }}</span></button>
+      <button class="icon-button motion-button" [attr.aria-label]="paused() ? 'Activar movimiento' : 'Reducir movimiento'" [title]="paused() ? 'Activar movimiento' : 'Reducir movimiento'" [attr.aria-pressed]="paused()" (click)="toggleMotion()">{{ paused() ? '▷' : 'Ⅱ' }}</button>
+    </div>
+  </header>
+  <section class="gift" aria-labelledby="gift-title">
+    <div class="copy">
+      <div class="eyebrow"><span></span> 21 DE SEPTIEMBRE <span></span></div>
+      <p class="for-you">Para Popi, de parte de Fran</p>
+      <h1 id="gift-title">Un poquito<br> de <em>sol,</em><br>solo para vos<span class="title-dot">.</span></h1>
+      <p class="intro">Porque hay personas que hacen florecer<br class="desktop-break"> los días. Y vos sos una de ellas.</p>
+      <div class="primary-actions">
+        @if (!complete()) {
+          <button class="letter-button bloom-button" [disabled]="growing() || !imageLoaded()" (click)="bloom()"><span class="bloom-icon" aria-hidden="true">✳</span>{{ imageFailed() ? 'No se pudo cargar el ramo' : !imageLoaded() ? 'Preparando tus flores…' : growing() ? 'Está floreciendo para vos…' : 'Hacer florecer' }}<span aria-hidden="true">↗</span></button>
+        } @else {
+          <button class="letter-button" (click)="openLetter()"><span aria-hidden="true">✉</span> Hay algo que quiero decirte <span aria-hidden="true">↗</span></button>
+        }
+        <div class="bloom-progress" aria-label="Flores reveladas" role="progressbar" [attr.aria-valuenow]="stage()" aria-valuemin="0" aria-valuemax="6">@for (flower of flowers; track $index) { <span [class.filled]="stage() > $index"></span> }<small>{{ complete() ? 'Un ramo entero de cariño.' : growing() ? stage() + ' de 6 pequeños deseos' : 'Lo bonito está a un pequeño gesto.' }}</small></div>
+      </div>
+      <p class="little-note">Estas flores no se marchitan. Lo lindo de vos, tampoco.</p>
+    </div>
+    <div class="garden">
+      <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
+      <span class="garden-label label-top">UN RAMITO DE FELICIDAD</span>
+      @if (stage() === 0) { <div class="waiting-note"><span aria-hidden="true">✧</span><p>Algo hermoso<br>está por florecer.</p><small>Y es para vos.</small></div> }
+      <div class="bouquet stage-bouquet" [class.bloomed]="stage() > 0" [class.finished]="complete()" role="img" [attr.aria-label]="complete() ? 'Ramo completo de girasoles y rosas amarillas, atado con una cinta azul' : stage() + ' flores amarillas reveladas'">
+        <img class="final-bouquet" src="assets/ramo-amarillo.png" alt="" width="1024" height="1536" fetchpriority="high" (load)="imageLoaded.set(true)" (error)="imageFailed.set(true)">
+        <div class="stems" aria-hidden="true"></div>
+        @for (flower of flowers; track $index) {
+          @if (stage() > $index) {
+            <div class="flower-piece" aria-hidden="true" [style.--cx]="flower.x + '%'" [style.--cy]="flower.y + '%'" [style.--fw]="flower.w + '%'" [style.--fh]="flower.h + '%'">
+              <div class="flower-texture"></div>
+            </div>
+          }
+        }
+      </div>
+      <span class="garden-label label-bottom">PARA QUE NUNCA TE FALTE UN POQUITO DE SOL</span>
+      @if (stage() > 0) { <div class="flower-note"><span>con mucho</span><strong>cariño</strong><span class="drawn-heart">♡</span></div> }
+      <div class="growing-caption" aria-live="polite">{{ stage() > 0 ? (complete() ? 'Que la vida te florezca bonito.' : flowers[stage() - 1].name) : '' }}</div>
+    </div>
+  </section>
+  <footer><span>PARA POPI <i>·</i> CON CARIÑO, FRAN</span><div class="footer-actions">@if (complete()) { <button (click)="bloom()"><span aria-hidden="true">↻</span> Volver a florecer</button> }</div><span class="footer-right">Que lo bonito siempre te encuentre. <span class="gold">✧</span></span></footer>
+</main>
+
+<dialog #letterDialog class="letter" aria-labelledby="letter-title" (click)="closeOutside($event, letterDialog)">
+  <button class="close-button" (click)="letterDialog.close()" aria-label="Cerrar carta">×</button>
+  <span class="letter-kicker">UNA CARTITA PARA POPI</span><h2 id="letter-title">Estas flores son para vos.</h2>
+  <div class="letter-message">{{ gift().message }}</div>
+  <p class="letter-signature">Con mucho cariño, Fran ♡</p>
+  <button class="keep-button" (click)="letterDialog.close()">Me las quedo <span aria-hidden="true">♡</span></button>
+</dialog>
+<div class="toast" role="status" aria-live="polite" [class.visible]="notice()">{{ notice() }}</div>
